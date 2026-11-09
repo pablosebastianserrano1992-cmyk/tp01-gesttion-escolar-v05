@@ -1,4 +1,4 @@
-// Lógica Principal - Sistema de Gestión Escolar PWA
+// Lógica Principal - Sistema de Gestión Escolar PWA (Paso 7 Integrado)
 document.addEventListener('DOMContentLoaded', () => {
     let datos = JSON.parse(localStorage.getItem('escuela_db')) || {
         cursos: [],
@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => console.error('Error al registrar Service Worker:', err));
     }
 
+    // Aviso discreto de conexión (Online / Offline) - PASO 7
     const avisoOffline = document.getElementById('aviso-offline');
     function verificarConexion() {
         if (!navigator.onLine) {
@@ -125,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('docente-email').value.trim();
 
         if (id) {
-            const index = datos.docentes.findIndex(d => d.id === id);
+            const index = datos.docentes.findIndex(d => d.id === d.id);
             if (index !== -1) datos.docentes[index] = { id, nombre, email };
         } else {
             datos.docentes.push({ id: Date.now().toString(), nombre, email });
@@ -229,13 +230,34 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stat-asignaciones').textContent = datos.asignaciones.length;
     }
 
-    document.getElementById('btn-exportar').addEventListener('click', () => {
+    // Exportación inteligente (Paso 7: navigator.share o descarga normal)
+    document.getElementById('btn-exportar').addEventListener('click', async () => {
         const str = JSON.stringify(datos, null, 2);
         const blob = new Blob([str], { type: 'application/json' });
+        const nombreArchivo = `escuela-datos-${new Date().toISOString().slice(0,10)}.json`;
+        const archivo = new File([blob], nombreArchivo, { type: 'application/json' });
+
+        if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+            try {
+                await navigator.share({
+                    files: [archivo],
+                    title: 'Copia de Seguridad - Gestión Escolar',
+                    text: 'Respaldo de datos del sistema escolar.'
+                });
+                return;
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.log('Error al compartir, descargando de forma tradicional...', err);
+                } else {
+                    return;
+                }
+            }
+        }
+
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `escuela-datos-${new Date().toISOString().slice(0,10)}.json`;
+        a.download = nombreArchivo;
         a.click();
         URL.revokeObjectURL(url);
     });
