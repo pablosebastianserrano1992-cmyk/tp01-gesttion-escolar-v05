@@ -1,4 +1,4 @@
-// Lógica Principal - Sistema de Gestión Escolar PWA (Paso 7 Integrado)
+// Lógica Principal - Sistema de Gestión Escolar PWA (Paso 8 Integrado)
 document.addEventListener('DOMContentLoaded', () => {
     let datos = JSON.parse(localStorage.getItem('escuela_db')) || {
         cursos: [],
@@ -14,10 +14,19 @@ document.addEventListener('DOMContentLoaded', () => {
         cargarSelects();
     }
 
+    // Registrar Service Worker y detectar actualizaciones (PASO 8)
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('Service Worker registrado:', reg.scope))
-            .catch(err => console.error('Error al registrar Service Worker:', err));
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            console.log('Service Worker registrado:', reg.scope);
+            reg.addEventListener('updatefound', () => {
+                const nuevoWorker = reg.installing;
+                nuevoWorker.addEventListener('statechange', () => {
+                    if (nuevoWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        alert('Hay una versión nueva: cerrá y volvé a abrir la app');
+                    }
+                });
+            });
+        }).catch(err => console.error('Error al registrar Service Worker:', err));
     }
 
     // Aviso discreto de conexión (Online / Offline) - PASO 7
@@ -126,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('docente-email').value.trim();
 
         if (id) {
-            const index = datos.docentes.findIndex(d => d.id === d.id);
+            const index = datos.docentes.findIndex(d => d.id === id);
             if (index !== -1) datos.docentes[index] = { id, nombre, email };
         } else {
             datos.docentes.push({ id: Date.now().toString(), nombre, email });

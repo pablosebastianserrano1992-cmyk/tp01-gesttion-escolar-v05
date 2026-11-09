@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gestion-escolar-v7';
+const CACHE_NAME = 'gestion-escolar-v8'; // Versión actualizada para el Paso 8
 const ASSETS = [
   './',
   './index.html',
