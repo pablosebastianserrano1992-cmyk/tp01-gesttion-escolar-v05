@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Escolar</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#1E3A8A">
+</head>
+<body>
+    <div id="pantalla-login" class="login-container">
+        <div class="login-card">
+            <h2>Acceso al Sistema</h2>
+            <p>Ingresá tus credenciales para continuar</p>
+            <form id="form-login">
+                <div class="form-group">
+                    <label for="login-usuario">Usuario</label>
+                    <input type="text" id="login-usuario" required placeholder="Usuario (admin)" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="Contraseña (1234)" autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </form>
+            <p id="login-error" class="error-msg" style="display: none;">Usuario o contraseña incorrectos.</p>
+        </div>
+    </div>
+
+    <div id="app-contenido" style="display: none;">
+        <header>
+            <h1>Sistema de Gestión Escolar</h1>
+            <nav>
+                <button class="nav-btn active" data-seccion="inicio">🏠 Inicio</button>
+                <button class="nav-btn" data-seccion="cursos">📚 Cursos</button>
+                <button class="nav-btn" data-seccion="alumnos">👨‍🎓 Alumnos</button>
+                <button class="nav-btn" data-seccion="docentes">👩‍🏫 Docentes</button>
+                <button class="nav-btn" data-seccion="asignaciones">📋 Asignaciones</button>
+                <button id="btn-logout" class="nav-btn btn-danger">🚪 Salir</button>
+            </nav>
+        </header>
+
+        <div id="aviso-offline" class="aviso-offline" style="display: none;">
+            ⚠️ Sin conexión: tus datos se siguen guardando en este celular
+        </div>
+
+        <main>
+            <section id="seccion-inicio" class="seccion-app active">
+                <h2>Bienvenido al Sistema</h2>
+                <p>Panel general de control y respaldo de información.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>Cursos Registrados</h4>
+                        <span id="stat-cursos">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Alumnos Registrados</h4>
+                        <span id="stat-alumnos">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Docentes Registrados</h4>
+                        <span id="stat-docentes">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Asignaciones</h4>
+                        <span id="stat-asignaciones">0</span>
+                    </div>
+                </div>
+
+                <h3>Copia de Seguridad</h3>
+                <div class="backup-actions">
+                    <button id="btn-exportar" class="btn btn-secondary">📥 Exportar Datos (JSON)</button>
+                    <label for="input-importar" class="btn btn-secondary">📤 Importar Datos (JSON)</label>
+                    <input type="file" id="input-importar" accept=".json" style="display: none;">
+                </div>
+            </section>
+
+            <section id="seccion-cursos" class="seccion-app">
+                <h2>Gestión de Cursos</h2>
+                <form id="form-curso" class="card-form">
+                    <input type="hidden" id="curso-id">
+                    <div class="form-group">
+                        <label for="curso-nombre">Nombre del Curso</label>
+                        <input type="text" id="curso-nombre" required placeholder="Ej: 3º I Tecnológica">
+                    </div>
+                    <div class="form-group">
+                        <label for="curso-anio">Año Lectivo</label>
+                        <input type="number" id="curso-anio" required min="1" max="7" inputmode="numeric" placeholder="Ej: 3">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-primary">Guardar Curso</button>
+                        <button type="button" class="btn btn-secondary btn-cancelar" style="display:none;">Cancelar</button>
+                    </div>
+                </form>
+
+                <h3>Lista de Cursos</h3>
+                <div class="table-container">
+                    <table class="tabla-datos">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Año</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-cursos-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="seccion-alumnos" class="seccion-app">
+                <h2>Gestión de Alumnos</h2>
+                <form id="form-alumno" class="card-form">
+                    <input type="hidden" id="alumno-id">
+                    <div class="form-group">
+                        <label for="alumno-nombre">Nombre Completo</label>
+                        <input type="text" id="alumno-nombre" required placeholder="Ej: María González">
+                    </div>
+                    <div class="form-group">
+                        <label for="alumno-legajo">Nº de Legajo</label>
+                        <input type="text" id="alumno-legajo" required placeholder="Ej: ALB-101" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="alumno-curso">Curso Asignado</label>
+                        <select id="alumno-curso" required></select>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-primary">Guardar Alumno</button>
+                        <button type="button" class="btn btn-secondary btn-cancelar" style="display:none;">Cancelar</button>
+                    </div>
+                </form>
+
+                <h3>Lista de Alumnos</h3>
+                <div class="table-container">
+                    <table class="tabla-datos">
+                        <thead>
+                            <tr>
+                                <th>Legajo</th>
+                                <th>Nombre</th>
+                                <th>Curso</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-alumnos-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="seccion-docentes" class="seccion-app">
+                <h2>Gestión de Docentes</h2>
+                <form id="form-docente" class="card-form">
+                    <input type="hidden" id="docente-id">
+                    <div class="form-group">
+                        <label for="docente-nombre">Nombre Completo</label>
+                        <input type="text" id="docente-nombre" required placeholder="Ej: Prof. Carlos Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label for="docente-email">Correo Electrónico</label>
+                        <input type="email" id="docente-email" required placeholder="Ej: carlos@escuela.edu.ar" autocomplete="email">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-primary">Guardar Docente</button>
+                        <button type="button" class="btn btn-secondary btn-cancelar" style="display:none;">Cancelar</button>
+                    </div>
+                </form>
+
+                <h3>Lista de Docentes</h3>
+                <div class="table-container">
+                    <table class="tabla-datos">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-docentes-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="seccion-asignaciones" class="seccion-app">
+                <h2>Asignación de Materias</h2>
+                <form id="form-asignacion" class="card-form">
+                    <input type="hidden" id="asignacion-id">
+                    <div class="form-group">
+                        <label for="asignacion-materia">Materia</label>
+                        <input type="text" id="asignacion-materia" required placeholder="Ej: Educación Tecnológica">
+                    </div>
+                    <div class="form-group">
+                        <label for="asignacion-docente">Docente</label>
+                        <select id="asignacion-docente" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="asignacion-curso">Curso</label>
+                        <select id="asignacion-curso" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="asignacion-horas">Horas Semanales</label>
+                        <input type="number" id="asignacion-horas" required min="1" max="10" inputmode="numeric" placeholder="Ej: 4">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-primary">Guardar Asignación</button>
+                        <button type="button" class="btn btn-secondary btn-cancelar" style="display:none;">Cancelar</button>
+                    </div>
+                </form>
+
+                <h3>Lista de Asignaciones</h3>
+                <div class="table-container">
+                    <table class="tabla-datos">
+                        <thead>
+                            <tr>
+                                <th>Materia</th>
+                                <th>Docente</th>
+                                <th>Curso</th>
+                                <th>Horas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-asignaciones-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="./app.js"></script>
+</body>
+</html>
